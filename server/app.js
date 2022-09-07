@@ -28,8 +28,8 @@ mongoose
 			useCreateIndex: true
 		}
 	)
-	.then(result => {
-		app.listen(3100);
+	.then(() => {
+		console.log('Connected to the database.')
 	})
 	.catch(err => {
 		console.log(err);

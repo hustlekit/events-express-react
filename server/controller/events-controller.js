@@ -1,7 +1,6 @@
 const Event = require('../model/event');
 
 exports.saveEvent = async (req, res) => {
-	console.log(req.body);
 	const firstName = req.body.firstName;
 	const lastName = req.body.lastName;
 	const email = req.body.email;
