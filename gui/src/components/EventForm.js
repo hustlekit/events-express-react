@@ -5,24 +5,20 @@ import Input from 'react-validation/build/input';
 import DatePicker from 'react-date-picker';
 import axios from 'axios';
 
-const required = value => {
-	if ( !value ) {
-		return (
-			<div>
-				This field is required!
-			</div>
-		);
-	}
-};
 
 const EventForm = () => {
 	const classes = styles();
+	const [ valid, setValid ] = useState(true);
 	const [ formSent, setFormSent ] = useState(false);
 	const [ firstName, setFirstName ] = useState('');
 	const [ lastName, setLastName ] = useState('');
 	const [ email, setEmail ] = useState('');
 	const [ eventDate, setEventDate ] = useState(new Date());
 	const [ savedEvent, setSavedEvent ] = useState({});
+	
+	const validateEmail = () => {
+		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+	}
 	
 	const onChangeFirstName = (e) => {
 		setFirstName(e.target.value);
@@ -38,6 +34,12 @@ const EventForm = () => {
 	
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		setValid(true);
+		
+		if (!firstName || !lastName || !email || !eventDate || !validateEmail()) {
+			setValid(false);
+			return;
+		}
 		
 		const event = {
 			firstName: firstName,
@@ -48,7 +50,6 @@ const EventForm = () => {
 		
 		const url = process.env.REACT_APP_API_URL + '/events';
 		const res = await axios.post(url, event);
-		console.log(res.data.event);
 		setSavedEvent(res.data.event);
 		setFormSent(true);
 	};
@@ -77,7 +78,6 @@ const EventForm = () => {
 									name={ 'firstName' }
 									value={ firstName }
 									onChange={ onChangeFirstName }
-									validations={ [ required ] }
 								/>
 							</div>
 							<div className={ classes.formControl }>
@@ -89,7 +89,6 @@ const EventForm = () => {
 									name={ 'lastName' }
 									value={ lastName }
 									onChange={ onChangeLastName }
-									validations={ [ required ] }
 								/>
 							</div>
 							<div className={ classes.formControl }>
@@ -101,7 +100,6 @@ const EventForm = () => {
 									name={ 'email' }
 									value={ email }
 									onChange={ onChangeEmail }
-									validations={ [ required ] }
 								/>
 							</div>
 							<div className={ classes.formControl }>
@@ -117,16 +115,21 @@ const EventForm = () => {
 								</button>
 							</div>
 						</Form>
+						<div>
+							{
+								!valid ? <div><span>Invalid Data</span></div> : null
+							}
+						</div>
 					</div>
 					:
-					<div>
+					<div className={ classes.container }>
 						<h2>Event Saved</h2>
-						<ul className={ classes.ulElement }>
-							<li>First name: { savedEvent.firstName }</li>
-							<li>Last name: { savedEvent.lastName }</li>
-							<li>Email: { savedEvent.email }</li>
-							<li>Event date: { savedEvent.eventDate }</li>
-						</ul>
+						<div className={ classes.savedContainer }>
+							<div><span>First name:</span><span>{ savedEvent.firstName }</span></div>
+							<div><span>Last name:</span><span>{ savedEvent.lastName }</span></div>
+							<div><span>Email:</span><span>{ savedEvent.email }</span></div>
+							<div><span>Event date:</span><span>{ savedEvent.eventDate }</span></div>
+						</div>
 						<button onClick={ handleBackButton }>Back</button>
 					</div>
 			}
@@ -155,9 +158,22 @@ const styles = makeStyles({
 	inputElement: {
 		width: '300px'
 	},
-	ulElement: {
-		listStyleType: 'none'
-	}
+	container: {
+		flex: 1
+	},
+	savedContainer: {
+		display: 'flex',
+		flexDirection: 'column',
+		'& span': {
+			flex: 1,
+		},
+		'& span:first-of-type': {
+			textAlign: 'right'
+		},
+		'& span:last-of-type': {
+			paddingLeft: '5px'
+		}
+	},
 });
 
 export default EventForm;
