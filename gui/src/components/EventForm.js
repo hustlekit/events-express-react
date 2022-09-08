@@ -107,6 +107,7 @@ const EventForm = () => {
 								<DatePicker
 									value={ eventDate }
 									onChange={ setEventDate }
+									data-testid={ 'eventDate' }
 								/>
 							</div>
 							<div>
